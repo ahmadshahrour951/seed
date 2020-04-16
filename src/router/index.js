@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 
 import AppAux from '../components/layout/AppAux.vue';
 import Login from '../components/Login.vue';
+import InfoInput from '../components/InfoInput.vue';
 
 Vue.use(VueRouter);
 
@@ -16,9 +17,14 @@ const routes = [
     },
     children: [
       {
-        path: 'login',
+        path: '/login',
         name: 'Login',
         component: Login
+      },
+      {
+        path: 'input',
+        name: 'InfoInput',
+        component: InfoInput
       }
     ]
   }
