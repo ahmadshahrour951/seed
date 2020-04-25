@@ -9,41 +9,7 @@
           <b-card-title title-tag="h2">Covid Optimize</b-card-title>
           <hr />
           <b-card-body>
-            <div style="height: 160px;" class="align-middle">
-              <b-row v-if="showSpinner" class="h-100 py-5 my-3">
-                <b-spinner class="mx-auto"></b-spinner>
-              </b-row>
-              <b-form
-                v-else
-                @submit="onSubmit"
-                class="mx-auto mt-3 mb-3"
-                style="height: inherit;"
-              >
-                <b-form-input
-                  type="email"
-                  required
-                  placeholder="Email"
-                  v-model="form.email"
-                  class="mb-3 shadow-sm"
-                >
-                </b-form-input>
-                <b-form-input
-                  type="password"
-                  required
-                  placeholder="Password"
-                  v-model="form.password"
-                  class="mb-3 mt-3 shadow-sm"
-                >
-                </b-form-input>
-                <b-button
-                  type="submit"
-                  class="w-50"
-                  :disabled="disableSubmit"
-                  variant="outline-primary"
-                  >Login</b-button
-                >
-              </b-form>
-            </div>
+            <LoginForm />
           </b-card-body>
         </b-card>
       </b-row>
@@ -52,33 +18,37 @@
 </template>
 
 <script>
+import LoginForm from './forms/LoginForm';
+
 export default {
   name: 'Login',
-  data() {
-    return {
-      form: {
-        email: '',
-        password: ''
-      },
-      showSpinner: false
-    };
+  components: {
+    LoginForm,
+  },
+  created() {
+    if (this.loggedIn) {
+      this.$router.push({ name: 'InfoInput' });
+    }
   },
   computed: {
-    disableSubmit() {
-      return !this.form.email.length || !this.form.password.length;
-    }
+    loggedIn() {
+      return this.$store.state.auth.status.loggedIn;
+    },
   },
-  methods: {
-    onSubmit(evt) {
-      evt.preventDefault();
-      this.showSpinner = true;
-      setTimeout(() => {
-        // this.$emit('authenticated', true);
-        this.$router.push({ name: 'InfoInput' });
-      }, 2000);
-    }
-  }
 };
 </script>
 
-<style></style>
+<style>
+.card {
+  background-color: #f7f7f7;
+  padding: 20px 25px 30px;
+  margin: 0 auto 25px;
+  margin-top: 50px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+  -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+}
+</style>

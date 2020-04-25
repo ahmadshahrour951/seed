@@ -13,7 +13,7 @@
             <em>Ahmed Shahrour</em>
           </template>
           <b-dropdown-item href="#">Profile</b-dropdown-item>
-          <b-dropdown-item href="#">Sign Out</b-dropdown-item>
+          <b-dropdown-item @click="handleLogout">Sign Out</b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>
     </b-collapse>
@@ -21,7 +21,19 @@
 </template>
 
 <script>
-export default {};
+export default {
+  methods: {
+    async handleLogout() {
+      try {
+        await this.$store.dispatch('auth/logout');
+        this.$router.push({ name: 'Login' });
+      } catch (error) {
+        this.$router.push({ name: 'Login' });
+        alert('Logout request failed, please refresh your browser');
+      }
+    },
+  },
+};
 </script>
 
 <style></style>
