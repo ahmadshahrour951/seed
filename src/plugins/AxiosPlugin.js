@@ -7,7 +7,7 @@ function axiosPlugin(options) {
       return {
         axiosInstance: null,
         axiosOptions: {
-          baseURL: 'http://localhost:8000/v1/',
+          baseURL: 'https://api.covidoptimize.org/v1/',
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
