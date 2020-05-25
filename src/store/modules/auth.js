@@ -1,4 +1,5 @@
 import AuthService from '../../services/auth.service';
+import router from '../../router';
 
 const state = {
   status: { loggedIn: false },
@@ -60,11 +61,18 @@ const actions = {
     try {
       const resPayload = await AuthService.autoLogin();
       commit('loginSuccess', resPayload);
+      if (router.currentRoute.name === 'AppAux') {
+        router.replace({ name: 'Dashboard' });
+      }
       return Promise.resolve(resPayload);
     } catch (error) {
-      await AuthService.logout();
       commit('loginFailure');
-      // return Promise.reject(error);
+      await AuthService.logout();
+      if (router.currentRoute.name !== 'Login') {
+        router.replace({
+          name: 'Login',
+        });
+      }
     }
   },
   async logout({ commit }) {

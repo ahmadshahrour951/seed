@@ -1,4 +1,36 @@
 $primary: #2b7a78;
+$enable-responsive-font-sizes: true;
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('../assets/fonts/Montserrat/Montserrat-Regular.ttf')
+    format('truetype');
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('../assets/fonts/Montserrat/Montserrat-Italic.ttf')
+    format('truetype');
+  font-style: italic;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('../assets/fonts/Montserrat/Montserrat-Bold.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('../assets/fonts/Montserrat/Montserrat-BoldItalic.ttf')
+    format('truetype');
+  font-style: italic;
+  font-weight: 700;
+}
 
 @import '../../node_modules/bootstrap/scss/bootstrap';
 @import '../../node_modules/bootstrap-vue/src/index.scss';

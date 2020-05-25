@@ -1,7 +1,7 @@
 <template>
   <ValidationObserver ref="observer" v-slot="{ passes }">
     <b-form
-      @submit.prevent="passes(handleLogin)"
+      @submit.prevent="passes(handleSubmit)"
       class="mx-auto mt-3 mb-3"
       style="height: inherit;"
     >
@@ -10,24 +10,24 @@
         type="email"
         label="Email address:"
         name="Email"
-        v-model="user.email"
+        v-model="email"
         class="text-left"
       />
-
-      <TextInputWithValidation
-        rules="required"
-        name="Password"
-        vid="password"
-        type="password"
-        label="Password:"
-        v-model="user.password"
-        class="text-left"
-      />
-
-      <ButtonWithSpinner :loading="loading" text="Login" class="pt-3" />
+      <ButtonWithSpinner :loading="loading" text="Submit" class="pt-3" />
 
       <b-form-group>
-        <div v-if="message" class="alert alert-danger" role="alert">
+        <div
+          v-if="message && !isSuccessful"
+          class="alert alert-danger"
+          role="alert"
+        >
+          {{ message }}
+        </div>
+        <div
+          v-else-if="message && isSuccessful"
+          class="alert alert-success"
+          role="alert"
+        >
           {{ message }}
         </div>
       </b-form-group>
@@ -36,8 +36,6 @@
 </template>
 
 <script>
-import User from '../../models/user';
-
 import { ValidationObserver } from 'vee-validate';
 import TextInputWithValidation from './inputs/TextInputWithValidation';
 import ButtonWithSpinner from './buttons/ButtonWithSpinner';
@@ -45,7 +43,7 @@ import ButtonWithSpinner from './buttons/ButtonWithSpinner';
 import './vee-validate';
 
 export default {
-  name: 'LoginForm',
+  name: 'EmailPasswordForm',
   components: {
     ValidationObserver,
     TextInputWithValidation,
@@ -53,37 +51,32 @@ export default {
   },
   data() {
     return {
-      user: new User('', ''),
+      email: null,
+      isSuccessful: false,
       loading: false,
       message: '',
     };
   },
   methods: {
-    async handleLogin() {
+    async handleSubmit() {
       this.loading = true;
 
       try {
-        if (this.user.email && this.user.password) {
-          await this.$store.dispatch('auth/login', {
-            api: this.$api,
-            user: this.user,
+        if (this.email) {
+          await this.$api.post('auth/reset', {
+            email: this.email,
           });
-          this.$router.push({ name: 'Dashboard' });
+          this.loading = false;
+          this.isSuccessful = true;
+          this.message = 'Please check your email to reset your password';
         }
       } catch (error) {
         this.loading = false;
         this.message =
-          error.response.data.message ||
-          (error.response && error.response.data) ||
           error.message ||
-          error.toString();
+          error.response.data.message ||
+          (error.response && error.response.data);
       }
-    },
-    resetForm() {
-      this.user = new User('', '');
-      requestAnimationFrame(() => {
-        this.$refs.observer.reset();
-      });
     },
   },
 };

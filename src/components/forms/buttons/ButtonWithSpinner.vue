@@ -1,11 +1,6 @@
 <template>
   <b-form-group>
-    <b-button
-      :disabled="loading"
-      type="submit"
-      class="w-50"
-      variant="outline-primary"
-    >
+    <b-button :disabled="loading" type="submit" class="w-50" variant="primary">
       <b-spinner
         v-show="loading"
         class="mx-auto"

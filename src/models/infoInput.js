@@ -4,8 +4,18 @@ export default class InfoInput {
     this.regularBedCount = payload.regularBedCount;
     this.ventilatorCount = payload.ventilatorCount;
     this.erWaitTime = payload.erWaitTime;
-    this.patientsWaitingCount = payload.patientsWaitingCount;
     this.userId = payload.userId;
     this.hospitalId = payload.hospitalId;
+  }
+
+  isValid() {
+    return (
+      this.icuBedCount &&
+      this.regularBedCount &&
+      this.ventilatorCount &&
+      this.erWaitTime &&
+      this.userId &&
+      this.hospitalId
+    );
   }
 }

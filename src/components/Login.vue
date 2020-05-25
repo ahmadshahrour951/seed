@@ -3,7 +3,7 @@
     <div class="container h-100">
       <b-row class="h-100">
         <b-card
-          class="shadow col-9 col-sm-9 col-md-7 col-lg-5 col-xl-4 mx-auto my-auto text-center"
+          class="shadow col-9 col-sm-9 col-md-7 col-lg-5 col-xl-5 mx-auto my-auto text-center"
           style="min-width: 340px;"
         >
           <b-card-title title-tag="h2">Covid Optimize</b-card-title>
@@ -11,6 +11,10 @@
           <b-card-body>
             <LoginForm />
           </b-card-body>
+          <hr />
+          <b-link :to="{ name: 'EmailPassword' }" variant="primary"
+            >Forgot your password?</b-link
+          >
         </b-card>
       </b-row>
     </div>
@@ -27,7 +31,7 @@ export default {
   },
   created() {
     if (this.loggedIn) {
-      this.$router.push({ name: 'InfoInput' });
+      this.$router.replace({ name: 'Dashboard' });
     }
   },
   computed: {

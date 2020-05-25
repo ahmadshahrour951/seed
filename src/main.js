@@ -6,10 +6,11 @@ import router from './router';
 import store from './store';
 import './scss/custom.scss';
 import AxiosPlugin from './plugins/AxiosPlugin';
-import { BootstrapVue } from 'bootstrap-vue';
+import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue';
 
 Vue.use(BootstrapVue);
-Vue.use(AxiosPlugin, { store });
+Vue.use(BootstrapVueIcons);
+Vue.use(AxiosPlugin, { store, router });
 Vue.component('ValidationProvider', ValidationProvider);
 
 Vue.config.productionTip = false;

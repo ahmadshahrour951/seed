@@ -57,23 +57,12 @@
             step="0.25"
           />
         </b-col>
-        <b-col>
-          <TextInputWithValidation
-            rules="required"
-            type="number"
-            label="Patients Waiting:"
-            name="Patients Waiting"
-            v-model="infoInput.patientsWaitingCount"
-            class="text-left"
-            min="0"
-          />
-        </b-col>
       </b-row>
 
       <ButtonWithSpinner
         :loading="loading"
         text="Submit"
-        class="pt-3 text-center"
+        class="pt-5 text-center"
       />
 
       <b-form-group>
@@ -82,16 +71,19 @@
         </div>
       </b-form-group>
     </b-form>
+
+    <ConfirmAddEntry :handleSubmit="postReq" />
   </ValidationObserver>
 </template>
 
 <script>
-import InfoInput from '../../models/infoInput';
-
 import { ValidationObserver } from 'vee-validate';
+
+import InfoInput from '../../models/infoInput';
 import TextInputWithValidation from './inputs/TextInputWithValidation';
 import RangeWithValidation from './inputs/RangeWithValidation';
 import ButtonWithSpinner from './buttons/ButtonWithSpinner';
+import ConfirmAddEntry from '../modals/ConfirmAddEntry';
 
 import './vee-validate';
 
@@ -102,6 +94,7 @@ export default {
     TextInputWithValidation,
     RangeWithValidation,
     ButtonWithSpinner,
+    ConfirmAddEntry,
   },
   data() {
     return {
@@ -110,7 +103,6 @@ export default {
         regularBedCount: null,
         ventilatorCount: null,
         erWaitTime: null,
-        patientsWaitingCount: null,
         userId: null,
         hospitalId: null,
       }),
@@ -119,33 +111,43 @@ export default {
     };
   },
   methods: {
-    async handleSubmit() {
-      this.loading = true;
-
+    handleSubmit() {
       const { userId, hospitalId } = this.$store.getters['auth/jwtData'];
       this.infoInput.userId = userId;
       this.infoInput.hospitalId = hospitalId;
 
+      if (this.infoInput.isValid()) {
+        this.$bvModal.show('confirm-add-entry');
+      }
+    },
+    async postReq() {
       try {
-        if (
-          this.infoInput.icuBedCount &&
-          this.infoInput.regularBedCount &&
-          this.infoInput.ventilatorCount &&
-          this.infoInput.erWaitTime &&
-          this.infoInput.patientsWaitingCount
-        ) {
+        this.loading = true;
+        this.message = '';
+        if (this.infoInput.isValid()) {
           await this.$api.post('hospitalinput', this.infoInput);
           this.loading = false;
+          await this.$bvToast.toast('Your entry was successfully submitted', {
+            title: 'Success',
+            toaster: 'b-toaster-bottom-center',
+            variant: 'success',
+          });
+          this.resetForm();
+          setTimeout(() => this.$router.push({ name: 'Dashboard' }), 1000);
         }
       } catch (error) {
-        console.log(error);
         this.loading = false;
         this.message =
-          error.response.data.message ||
-          (error.response && error.response.data) ||
           error.message ||
-          error.toString();
+          error.response.data.message ||
+          (error.response && error.response.data);
       }
+    },
+    resetForm() {
+      this.infoInput = new InfoInput('', '');
+      requestAnimationFrame(() => {
+        this.$refs.observer.reset();
+      });
     },
   },
 };

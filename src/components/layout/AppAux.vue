@@ -1,26 +1,20 @@
 <template>
   <transition name="slide-fade" mode="out-in" appear>
-    <router-view mode="out-in"> </router-view>
+    <router-view mode="out-in" class="h-100"> </router-view>
   </transition>
 </template>
 
 <script>
 export default {
   name: 'AppAux',
-  async created() {
-    // this.$store.dispatch('auth/setCsrf', { api: this.$api });
-    await this.$store.dispatch('auth/tryAutoLogin');
-
-    if (!this.loggedIn && this.$route.path !== '/login') {
-      this.$router.push({ name: 'Login' });
-    } else if (this.$route.path === '/') {
-      this.$router.push({ name: 'InfoInput' });
+  created() {
+    if (
+      !['Login', 'EmailPassword', 'ResetPassword'].some(
+        (x) => x === this.$route.name
+      )
+    ) {
+      this.$store.dispatch('auth/tryAutoLogin');
     }
-  },
-  computed: {
-    loggedIn() {
-      return this.$store.state.auth.status.loggedIn;
-    },
   },
 };
 </script>
