@@ -7,7 +7,8 @@ function axiosPlugin(options) {
       return {
         axiosInstance: null,
         axiosOptions: {
-          baseURL: 'https://api.covidoptimize.org/v1/',
+          // baseURL: 'https://api.covidoptimize.org/v1/',
+          baseURL: 'http://localhost:8000/v1/',
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -61,11 +62,11 @@ function axiosPlugin(options) {
           }
         );
       },
-      async get(url) {
-        return this.axiosInstance.get(url);
+      async get(url, config = {}) {
+        return this.axiosInstance.get(url, config);
       },
-      post(url, data) {
-        return this.axiosInstance.post(url, data);
+      post(url, data, config = {}) {
+        return this.axiosInstance.post(url, data, config);
       },
     },
   });
