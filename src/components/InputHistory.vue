@@ -1,24 +1,32 @@
 <template>
   <b-container class="col-xl-10">
-    <b-card class="shadow" style="height: 75vh">
+    <b-card class="shadow" style="min-height: 75vh">
       <b-card-header style="background-color: transparent">
         <b-row>
           <b-col>
             <b-card-title style="display: inline" title-tag="h2"
-              >Input History</b-card-title
+              >History</b-card-title
             >
           </b-col>
           <b-col>
             <div class="w-100 text-right">
-              <b-button variant="primary" @click="fetchData">
-                <b-icon icon="arrow-repeat" font-scale="1.5">></b-icon>
+              <b-button
+                :variant="filterButtonVariant"
+                class="mr-2"
+                @click="$bvModal.show('input-history-filter')"
+              >
+                <b-icon icon="filter" font-scale="1.5"></b-icon>
+              </b-button>
+              <b-button variant="outline-primary" @click="fetchData">
+                <b-icon icon="arrow-repeat" font-scale="1.5"></b-icon>
               </b-button>
             </div>
           </b-col>
         </b-row>
       </b-card-header>
       <div
-        :class="[loading ? 'd-flex' : 'd-none', 'align-items-center', 'h-100']"
+        :class="[loading ? 'd-flex' : 'd-none', 'align-items-center']"
+        style="height: 53vh !important;"
       >
         <b-spinner
           label="Loading..."
@@ -29,21 +37,34 @@
       </div>
 
       <b-table
-        v-show="!loading"
+        v-show="!loading && tableItems.length"
         id="input_history"
-        :items="items"
+        :items="tableItems"
         :fields="fields"
         primary-key="id"
         responsive
-        sticky-header="55vh"
+        sticky-header="53vh"
+        style="height: 53vh"
         :sort-by="'createdAt'"
         :sort-desc="true"
         :sort-compare="sortCompare"
+        :per-page="perPage"
+        :current-page="currentPage"
       >
       </b-table>
 
+      <b-pagination
+        v-show="!loading && tableItems.length"
+        align="center"
+        v-model="currentPage"
+        :total-rows="rows"
+        :per-page="perPage"
+        class="m-0"
+      >
+      </b-pagination>
+
       <h3
-        v-show="!loading && !items.length"
+        v-show="!loading && !tableItems.length"
         class="text-muted text-center mt-5"
       >
         No Data to Show
@@ -58,42 +79,43 @@
         >Add New Entry</b-button
       >
     </div>
+    <InputHistoryFilter :handleFetch="fetchData" />
   </b-container>
 </template>
 
 <script>
-import moment from 'moment';
+import InputHistoryFilter from './modals/InputHistoryFilter';
+import sortCompare from '@/utils/tables/sortCompare.js';
 
 export default {
+  components: {
+    InputHistoryFilter,
+  },
   data() {
     return {
+      perPage: 9,
+      currentPage: 1,
       loading: false,
-      items: [],
       fields: [
         {
           key: 'fullName',
           label: 'User',
-          sortable: true,
         },
         {
           key: 'icuBedCount',
           label: 'ICUs Vacant',
-          sortable: true,
         },
         {
           key: 'regularBedCount',
           label: 'Beds Vacant',
-          sortable: true,
         },
         {
           key: 'ventilatorCount',
           label: 'Ventilators Vacant',
-          sortable: true,
         },
         {
           key: 'erWaitTime',
           label: 'ER Wait Time',
-          sortable: true,
         },
         {
           key: 'createdAt',
@@ -110,6 +132,17 @@ export default {
     loggedIn() {
       return this.$store.state.auth.status.loggedIn;
     },
+    tableItems() {
+      return this.$store.getters['history/tableItems'];
+    },
+    filterButtonVariant() {
+      return this.$store.getters['history/isFiltersEmpty']
+        ? 'outline-primary'
+        : 'primary';
+    },
+    rows() {
+      return this.tableItems.length;
+    },
   },
   watch: {
     loggedIn(val) {
@@ -120,13 +153,7 @@ export default {
     async fetchData() {
       try {
         this.loading = true;
-        const { hospitalId } = this.$store.getters['auth/jwtData'];
-        const res = await this.$api.get(`hospitalinput/${hospitalId}`);
-        res.data.data.forEach((x) => {
-          x.createdAt = moment(x.createdAt).format('MMMM Do YYYY, h:mm a');
-          x.fullName = `${x.user.firstName} ${x.user.lastName}`;
-        });
-        this.items = res.data.data;
+        await this.$store.dispatch('history/fetchInputs', { api: this.$api });
         this.loading = false;
       } catch (error) {
         this.loading = false;
@@ -135,49 +162,7 @@ export default {
     handleAddEntry() {
       this.$router.push({ name: 'AddInput' });
     },
-    sortCompare(
-      aRow,
-      bRow,
-      key,
-      sortDesc,
-      formatter,
-      compareOptions,
-      compareLocale
-    ) {
-      const a = aRow[key]; // or use Lodash `_.get()`
-      const b = bRow[key];
-      if (typeof a === 'number' && typeof b === 'number') {
-        // If both compared fields are native numbers
-        return a < b ? -1 : a > b ? 1 : 0;
-      } else if (
-        moment(a, 'MMMM Do YYYY, h:mm a').isValid() &&
-        moment(b, 'MMMM Do YYYY, h:mm a').isValid()
-      ) {
-        // If both compared fields are dates
-        const ai = moment(a, 'MMMM Do YYYY, h:mm a');
-        const bi = moment(b, 'MMMM Do YYYY, h:mm a');
-        return ai.isBefore(bi) ? -1 : ai.isAfter(bi) ? 1 : 0;
-      } else {
-        // Otherwise stringify the field data and use String.prototype.localeCompare
-        return toString(a).localeCompare(
-          toString(b),
-          compareLocale,
-          compareOptions
-        );
-      }
-    },
-    toString(value) {
-      if (value === null || typeof value === 'undefined') {
-        return '';
-      } else if (value instanceof Object) {
-        return Object.keys(value)
-          .sort()
-          .map((key) => toString(value[key]))
-          .join(' ');
-      } else {
-        return String(value);
-      }
-    },
+    sortCompare,
   },
 };
 </script>
