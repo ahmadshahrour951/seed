@@ -1,14 +1,18 @@
 import Vue from 'vue';
 import axios from 'axios';
 
+const baseURL =
+  process.env.NODE_ENV === 'production'
+    ? 'https://api.covidoptimize.org/v1/'
+    : 'http://localhost:8000/v1/';
+
 function axiosPlugin(options) {
   return new Vue({
     data() {
       return {
         axiosInstance: null,
         axiosOptions: {
-          // baseURL: 'https://api.covidoptimize.org/v1/',
-          baseURL: 'http://localhost:8000/v1/',
+          baseURL,
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -19,6 +23,7 @@ function axiosPlugin(options) {
     },
     created() {
       this.createAxios();
+      console.log(process.env.NODE_ENV);
     },
     computed: {
       jwtToken() {
