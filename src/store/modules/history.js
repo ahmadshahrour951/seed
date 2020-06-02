@@ -62,13 +62,19 @@ const actions = {
     const { dateRange } = state.filters;
     const users = state.filters.users.selected.map((x) => x.id);
 
-    const params = {
+    const apiPayload = {
       hospitalId,
-      dateRange,
-      users,
     };
 
-    const inputsRes = await HistoryService.getInputs(payload.api, params);
+    if (dateRange.startDate && dateRange.endDate) {
+      apiPayload.dateRange = dateRange;
+    }
+
+    if (users.length) {
+      apiPayload.users = users;
+    }
+
+    const inputsRes = await HistoryService.getInputs(payload.api, apiPayload);
     commit('storeInputs', inputsRes);
   },
   async fetchHospitalUsers({ commit, rootGetters }, payload) {

@@ -1,11 +1,17 @@
 class HistoryService {
   static async getInputs(api, payload) {
-    const { dateRange, users } = payload;
+    const params = {};
+
+    if (Object.prototype.hasOwnProperty.call(payload, 'dateRange')) {
+      params.dateRange = payload.dateRange;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(payload, 'users')) {
+      params.users = payload.dateRange;
+    }
+
     const res = await api.get(`hospitalinput/${payload.hospitalId}`, {
-      params: {
-        dateRange,
-        users,
-      },
+      params,
     });
     return res.data.data;
   }
