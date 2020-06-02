@@ -7,7 +7,7 @@ class HistoryService {
     }
 
     if (Object.prototype.hasOwnProperty.call(payload, 'users')) {
-      params.users = payload.dateRange;
+      params.users = payload.users;
     }
 
     const res = await api.get(`hospitalinput/${payload.hospitalId}`, {
